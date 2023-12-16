@@ -7,6 +7,10 @@ export const editPassword= async (req,res,next)=>{
     const getUserData=await userModel.findById(user._id);
     if(!passwordDecryption(getUserData.email,oldPaasword)) return next(new Error("Incorrect Old Password"));
     const hashNewPassword=await hashPassword(newPassword);
-    await userModel.findByIdAndUpdate(req.user._id,{password:hashNewPassword});
+    await userModel.findByIdAndUpdate(req.user._id,{password:hashNewPassword,passwordChangeTime:Date.now()});
     return res.json({message:"password updated successfully"});
+}
+
+export const test=(req,res)=>{
+    return res.json("sss");
 }

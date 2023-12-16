@@ -13,7 +13,7 @@ export const auth = (Roles = []) => {
         const token = splitToken(authorization);
         const tokenVerfied = verifyToken(token[1], process.env.LOGINSECRET)
         if (!tokenVerfied) return next(new Error('Invalid Token'));
-        const user = await userModel.findById(tokenVerfied.id).select('role changePasswordTime');
+        const user = await userModel.findById(tokenVerfied.id).select('role passwordChangeTime');
         if (!user) return next(new Error('Not registered user'));
         if (checkchangePasswordTime(user, tokenVerfied)) return next(new Error('Expired token, please Sign in again'));
         if (!userRole(Roles, user)) return next(new Error('Access to this page is restricted and permission is not granted'));

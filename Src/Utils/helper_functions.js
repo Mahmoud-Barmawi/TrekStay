@@ -59,7 +59,8 @@ export function splitToken(authorization) {
 }
 
 export function checkchangePasswordTime(user, tokenVerfied) {
-    if(parseInt(user.changePasswordTime?.getTime()/1000)>tokenVerfied.iat) return true;
+    if(parseInt(user.passwordChangeTime?.getTime()/1000)>tokenVerfied.iat)
+        return true;
     return false;
 }
 export function userRole(Roles,user) {
