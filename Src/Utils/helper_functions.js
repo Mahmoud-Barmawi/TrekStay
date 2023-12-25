@@ -3,8 +3,9 @@ import bcrypt from 'bcryptjs'
 import userModel from "../../Database/Models/user.model.js";
 import { customAlphabet } from "nanoid";
 import categoryModel from "../../Database/Models/category.model.js";
+import accommodationModel from "../../Database/Models/accommodation.model.js";
 
-export async function isEmailAlreadyRegistered(email, next) {
+export async function isEmailAlreadyRegistered(email) {
     const checkEmail = await userModel.findOne({ email });
     return Boolean(checkEmail);
 }
