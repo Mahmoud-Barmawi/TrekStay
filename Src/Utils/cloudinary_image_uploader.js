@@ -7,5 +7,5 @@ export async function uploadImage(path, folderName) {
 }
 
 export async function deleteImage(nameId) {
-    await cloudinary.uploader.destroy(nameId);
+    await cloudinary.uploader.destroy(nameId)
 }

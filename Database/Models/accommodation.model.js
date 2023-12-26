@@ -3,7 +3,6 @@ import { describesYourPlace } from '../../Src/Modules/Accommodation/describe_pla
 const accommodationSchema=new Schema({
     name:{
         type:String,
-        unique:true,
         required:true,
         trim:true,
     },

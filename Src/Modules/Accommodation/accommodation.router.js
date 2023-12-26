@@ -10,4 +10,13 @@ router.post('/CreateAccommodation',auth(roles.USER),fileUpload(fileValidation.im
     {name:'subImages', maxCount:8},
 ]),asyncHandler(accommodationController.createAccommodation));
 
+router.get('/GetAllAccommodations',auth(roles.USER),asyncHandler(accommodationController.getAllAccommodations));
+
+router.put('/EditAccommodationImageAndSubImages/:id',auth(roles.USER),fileUpload(fileValidation.image).fields([
+    {name:'mainImage', maxCount:1},
+    {name:'subImages', maxCount:8},
+]),asyncHandler(accommodationController.updateAccommodationMainImageAndSubImages));
+
+router.get('/RetrieveAccommodationAssociatedWithSpecificCategory/:id',
+auth(roles.USER),asyncHandler(accommodationController.getAccommodationsByCategoryId));
 export default router;

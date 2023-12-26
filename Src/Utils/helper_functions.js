@@ -82,4 +82,14 @@ export async function isCategoryAlreadyExistById(categoryIdentifier) {
     const checkCategory = await categoryModel.findById(categoryIdentifier);
     return checkCategory;
 }
-
+export async function isAccommodationAlreadyExist(id) {
+    const checkAccommodation = await accommodationModel.findById(id);
+    return checkAccommodation;
+}
+export async function verifyUserAccommodationCompatibility(accommodation_id,user_id){
+    const accommodationCreatedBy=await accommodationModel.findById(accommodation_id);
+    if(accommodationCreatedBy){
+    if(accommodationCreatedBy.createdBy.equals(user_id)) return true;
+    return false;
+    }return 
+}
