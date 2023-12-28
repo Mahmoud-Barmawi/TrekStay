@@ -2,6 +2,7 @@ import slugify from "slugify";
 import categoryModel from "../../../../Database/Models/category.model.js";
 import { isCategoryAlreadyExist, isCategoryAlreadyExistById } from "../../../Utils/helper_functions.js";
 import { deleteImage, uploadImage } from "../../../Utils/cloudinary_image_uploader.js";
+import accommodationModel from "../../../../Database/Models/accommodation.model.js";
 
 export const createCategory = async (req, res, next) => {
     const { name, description } = req.body;
@@ -72,5 +73,13 @@ export const updateCategoryImage = async (req, res, next) => {
     return res.json({message:"success",category});
 }
 export const deleteCategory=async(req,res,next)=>{
-    return res.json("I will do this afte complete accommdation module");
+    const {id}=req.params;
+    const categoryIdExists = await isCategoryAlreadyExistById(id);
+    if (!categoryIdExists) {
+        return next(new Error(`Category does not exist, please choose another one`));
+    }
+    const category=await categoryModel.findByIdAndUpdate(id,{status:"Inactive"},{new:true});
+
+    await accommodationModel.updateMany({category:id},{status:"Inactive"});
+    return res.json({message:"success",category});
 }
