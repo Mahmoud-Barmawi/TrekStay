@@ -88,8 +88,6 @@ export async function isAccommodationAlreadyExist(id) {
 }
 export async function verifyUserAccommodationCompatibility(accommodation_id,user_id){
     const accommodationCreatedBy=await accommodationModel.findById(accommodation_id);
-    if(accommodationCreatedBy){
     if(accommodationCreatedBy.createdBy.equals(user_id)) return true;
     return false;
-    }return 
 }
