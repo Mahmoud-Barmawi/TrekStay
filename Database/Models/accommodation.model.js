@@ -84,6 +84,12 @@ const accommodationSchema=new Schema({
         type:Number,
         default:1,
     },
+    published:{
+        type:String,
+        required:true,
+        default:'Pending',
+        enum:['Accepted','Rejected','Pending']
+    },
     category: { type: Types.ObjectId, ref: 'Category', required: true },
     createdBy: { type: Types.ObjectId, ref: 'User', required: true },
     updatedBy: { type: Types.ObjectId, ref: 'User', required: true },
