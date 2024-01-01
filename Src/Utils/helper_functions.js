@@ -4,6 +4,7 @@ import userModel from "../../Database/Models/user.model.js";
 import { customAlphabet } from "nanoid";
 import categoryModel from "../../Database/Models/category.model.js";
 import accommodationModel from "../../Database/Models/accommodation.model.js";
+import wishlistModle from "../../Database/Models/wishlist.model.js";
 
 export async function isEmailAlreadyRegistered(email) {
     const checkEmail = await userModel.findOne({ email });
@@ -64,13 +65,13 @@ export function splitToken(authorization) {
 }
 
 export function checkchangePasswordTime(user, tokenVerfied) {
-    if(parseInt(user.passwordChangeTime?.getTime()/1000)>tokenVerfied.iat)
+    if (parseInt(user.passwordChangeTime?.getTime() / 1000) > tokenVerfied.iat)
         return true;
     return false;
 
 }
-export function userRole(Roles,user) {
-    if(Roles.includes(user.role)) return true;
+export function userRole(Roles, user) {
+    if (Roles.includes(user.role)) return true;
     return false;
 }
 
@@ -86,8 +87,26 @@ export async function isAccommodationAlreadyExist(id) {
     const checkAccommodation = await accommodationModel.findById(id);
     return checkAccommodation;
 }
-export async function verifyUserAccommodationCompatibility(accommodation_id,user_id){
-    const accommodationCreatedBy=await accommodationModel.findById(accommodation_id);
-    if(accommodationCreatedBy.createdBy.equals(user_id)) return true;
+export async function verifyUserAccommodationCompatibility(accommodation_id, user_id) {
+    const accommodationCreatedBy = await accommodationModel.findById(accommodation_id);
+    if (accommodationCreatedBy.createdBy.equals(user_id)) return true;
     return false;
 }
+
+export async function userHasWishlist(userId) {
+    const checkUser=await wishlistModle.findOne({userId});
+    return Boolean(checkUser);
+}
+export async function addAccommodationToWishlist(accommodationsId,wishlistName,userId) {
+    const addAccommodation=await wishlistModle.findOne({userId});
+    addAccommodation.accommodations.push(accommodationsId);
+    addAccommodation.wishlistName.push(wishlistName);
+    await addAccommodation.save();
+    return true;
+}
+
+export async function checkAccommodation(accommodationsId) {
+    const checkAccommodation=await wishlistModle.findOne({accommodations:accommodationsId});
+    return Boolean(checkAccommodation);
+}
+

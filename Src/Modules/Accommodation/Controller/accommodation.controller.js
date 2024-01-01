@@ -68,7 +68,7 @@ export const getAccommodationsByCategoryId = async (req, res, next) => {
     return res.json({ message: 'success', accommodation });
 }
 export const getAllActiveAccommodations = async (req, res, next) => {
-    const accommodation=await accommodationModel.find({status:"Active"});
+    const accommodation=await accommodationModel.find({status:"Active",published:"Accepted"});
     if(!accommodation) return next (new Error('No available accommodation found'))
     return res.json({message:"success",accommodation});
 }
@@ -223,6 +223,18 @@ export const updateAccommodationStatus = async (req, res, next) => {
     accommodation.updatedBy = req.user._id;
     await accommodation.save();
     return res.json({ message: "success", accommodation });
+}
+export const confirmAccommodationPublished = async (req, res, next) => {
+    const {id}=req.params;
+    const {answer}=req.body;
+    let accommodation = await isAccommodationAlreadyExist(id);
+    if (!accommodation)
+        return next(new Error('The specified accommodation is non-existent'));
+    if(accommodation.published=='Accepted' || accommodation.published == 'Rejected') 
+        return next (new Error('The query regarding this accommodation has been addressed'));
+    accommodation.published=answer;
+    await accommodation.save();
+    return res.json({message:"success",accommodation});
 }
 export const deleteAccommodation = async (req, res, next) => {
     const { id } = req.params;
