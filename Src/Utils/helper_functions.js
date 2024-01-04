@@ -94,19 +94,35 @@ export async function verifyUserAccommodationCompatibility(accommodation_id, use
 }
 
 export async function userHasWishlist(userId) {
-    const checkUser=await wishlistModle.findOne({userId});
+    const checkUser = await wishlistModle.findOne({ userId });
     return Boolean(checkUser);
 }
-export async function addAccommodationToWishlist(accommodationsId,wishlistName,userId) {
-    const addAccommodation=await wishlistModle.findOne({userId});
+export async function addAccommodationToWishlist(accommodationsId, wishlistName, userId) {
+    const addAccommodation = await wishlistModle.findOne({ userId });
     addAccommodation.accommodations.push(accommodationsId);
-    addAccommodation.wishlistName.push(wishlistName);
+    addAccommodation.wishlistName.push(wishlistName.toLowerCase());
     await addAccommodation.save();
     return true;
 }
 
 export async function checkAccommodation(accommodationsId) {
-    const checkAccommodation=await wishlistModle.findOne({accommodations:accommodationsId});
+    const checkAccommodation = await wishlistModle.findOne({ accommodations: accommodationsId });
     return Boolean(checkAccommodation);
 }
-
+export async function isWishlistAlreadyExist(id){
+    const wishlist = await wishlistModle.findById(id);
+    return Boolean(wishlist);
+}
+export async function hasUserWishlist(wishlistId,userId){
+    const wishlist = await wishlistModle.findById(wishlistId);
+    if(userId.equals(userId)) return true;
+    return false;
+}
+export async function isWishlistWithNamePresent(oldName) {
+    let result;
+    const wishlistName = await wishlistModle.find();
+    for (let iterator of wishlistName) {
+        result = iterator.wishlistName.includes(oldName);
+    }
+    return result;
+}
