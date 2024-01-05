@@ -5,6 +5,7 @@ import { customAlphabet } from "nanoid";
 import categoryModel from "../../Database/Models/category.model.js";
 import accommodationModel from "../../Database/Models/accommodation.model.js";
 import wishlistModle from "../../Database/Models/wishlist.model.js";
+import moment from "moment";
 
 export async function isEmailAlreadyRegistered(email) {
     const checkEmail = await userModel.findOne({ email });
@@ -109,13 +110,13 @@ export async function checkAccommodation(accommodationsId) {
     const checkAccommodation = await wishlistModle.findOne({ accommodations: accommodationsId });
     return Boolean(checkAccommodation);
 }
-export async function isWishlistAlreadyExist(id){
+export async function isWishlistAlreadyExist(id) {
     const wishlist = await wishlistModle.findById(id);
     return Boolean(wishlist);
 }
-export async function hasUserWishlist(wishlistId,userId){
+export async function hasUserWishlist(wishlistId, userId) {
     const wishlist = await wishlistModle.findById(wishlistId);
-    if(userId.equals(userId)) return true;
+    if (userId.equals(userId)) return true;
     return false;
 }
 export async function isWishlistWithNamePresent(oldName) {
@@ -125,4 +126,33 @@ export async function isWishlistWithNamePresent(oldName) {
         result = iterator.wishlistName.includes(oldName);
     }
     return result;
+}
+// Function to check availability
+export async function checkAvailability(accommodationId, requestedCheckIn, requestedCheckOut) {
+    const accommodation = await accommodationModel.findById(accommodationId);
+
+    // Convert requested dates to moment.js objects for easier comparison
+    const requestedStart = moment(requestedCheckIn);
+    const requestedEnd = moment(requestedCheckOut);
+    for (let i = 0; i < accommodation.checkIn.length; i++) {
+        // Convert booking dates to moment.js objects
+        const bookingStart = moment(accommodation.checkIn[i]);
+        const bookingEnd = moment(accommodation.checkOut[i]);
+        // If the requested check in date is between an existing booking, it's not available
+        if (requestedStart.isBetween(bookingStart, bookingEnd, null, '[]')) {
+            return false;
+        }
+
+        // If the requested check out date is between an existing booking, it's not available
+        if (requestedEnd.isBetween(bookingStart, bookingEnd, null, '[]')) {
+            return false;
+        }
+
+        // If the requested check in date is before and check out date is after an existing booking, it's not available
+        if (requestedStart.isSameOrBefore(bookingStart) && requestedEnd.isSameOrAfter(bookingEnd)) {
+            return false;
+        }
+    }
+    // If none of the above conditions are met, the dates are available
+    return true;
 }

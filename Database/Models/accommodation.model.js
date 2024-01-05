@@ -4,7 +4,6 @@ const accommodationSchema=new Schema({
     name:{
         type:String,
         required:true,
-        trim:true,
     },
     slug:{
         type:String,
@@ -90,6 +89,17 @@ const accommodationSchema=new Schema({
         default:'Pending',
         enum:['Accepted','Rejected','Pending']
     },
+    reviews:[{
+        type:String,
+    }],
+    checkIn:[{
+        type:Date,
+        default:null,
+    }],
+    checkOut:[{
+        type:Date,
+        default:null,
+    }],
     category: { type: Types.ObjectId, ref: 'Category', required: true },
     createdBy: { type: Types.ObjectId, ref: 'User', required: true },
     updatedBy: { type: Types.ObjectId, ref: 'User', required: true },
