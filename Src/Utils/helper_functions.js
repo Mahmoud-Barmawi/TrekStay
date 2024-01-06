@@ -127,6 +127,7 @@ export async function isWishlistWithNamePresent(oldName) {
     }
     return result;
 }
+
 // Function to check availability
 export async function checkAvailability(accommodationId, requestedCheckIn, requestedCheckOut) {
     const accommodation = await accommodationModel.findById(accommodationId);
@@ -134,25 +135,49 @@ export async function checkAvailability(accommodationId, requestedCheckIn, reque
     // Convert requested dates to moment.js objects for easier comparison
     const requestedStart = moment(requestedCheckIn);
     const requestedEnd = moment(requestedCheckOut);
+
+    // Calculate the number of days between requestedCheckIn and requestedCheckOut
+    const numberOfDays = requestedEnd.diff(requestedStart, 'days');
     for (let i = 0; i < accommodation.checkIn.length; i++) {
         // Convert booking dates to moment.js objects
         const bookingStart = moment(accommodation.checkIn[i]);
         const bookingEnd = moment(accommodation.checkOut[i]);
+
         // If the requested check in date is between an existing booking, it's not available
         if (requestedStart.isBetween(bookingStart, bookingEnd, null, '[]')) {
-            return false;
+            return { available: false, numberOfDays };
         }
 
         // If the requested check out date is between an existing booking, it's not available
         if (requestedEnd.isBetween(bookingStart, bookingEnd, null, '[]')) {
-            return false;
+            return { available: false, numberOfDays };
         }
 
         // If the requested check in date is before and check out date is after an existing booking, it's not available
         if (requestedStart.isSameOrBefore(bookingStart) && requestedEnd.isSameOrAfter(bookingEnd)) {
-            return false;
+            return { available: false, numberOfDays };
         }
     }
+
     // If none of the above conditions are met, the dates are available
-    return true;
+    return { available: true, numberOfDays };
+}
+
+export async function checkNumberOfNights(accommodationId, numberOfNights) {
+    const accommodation = await accommodationModel.findById(accommodationId);
+    const minimumNumberOfNights = accommodation.minimumNumberOfNights;
+    if (minimumNumberOfNights > numberOfNights) {
+        return { available: false, minimumNumberOfNights };
+    }
+    return { available: true, minimumNumberOfNights };
+
+}
+
+export async function checkNumberOfGuests(accommodationId, numberOfGuests) {
+    const accommodation = await accommodationModel.findById(accommodationId);
+    const maximumNumberOfGuests = accommodation.numberOfGuests;
+    if (maximumNumberOfGuests < numberOfGuests) {
+        return { availableNumberOfGuests: false, maximumNumberOfGuests };
+    }
+    return { availableNumberOfGuests: true, maximumNumberOfGuests };
 }
