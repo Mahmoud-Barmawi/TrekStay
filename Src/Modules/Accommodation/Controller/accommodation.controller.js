@@ -25,7 +25,7 @@ export const createAccommodation = async (req, res, next) => {
     if (!await isCategoryAlreadyExistById(category))
         return next(new Error("Invalid category selected. Please choose a valid category."));
     const { secure_url, public_id } = await uploadImage(req.files.mainImage[0].path, `accommodation/main images ${name}`);
-    
+
     for (let iterator of req.files.subImages) {
         const { secure_url, public_id } = await uploadImage(iterator.path, `accommodation/sub images ${name}`);
         subImages.push({ secure_url, public_id });
@@ -69,9 +69,9 @@ export const getAccommodationsByCategoryId = async (req, res, next) => {
     return res.json({ message: 'success', accommodation });
 }
 export const getAllActiveAccommodations = async (req, res, next) => {
-    const accommodation=await accommodationModel.find({status:"Active",published:"Accepted"});
-    if(!accommodation) return next (new Error('No available accommodation found'))
-    return res.json({message:"success",accommodation});
+    const accommodation = await accommodationModel.find({ status: "Active", published: "Accepted" });
+    if (!accommodation) return next(new Error('No available accommodation found'))
+    return res.json({ message: "success", accommodation });
 }
 export const updateAccommodationMainImageAndSubImages = async (req, res, next) => {
     const subImagesArr = [];
@@ -226,16 +226,16 @@ export const updateAccommodationStatus = async (req, res, next) => {
     return res.json({ message: "success", accommodation });
 }
 export const confirmAccommodationPublished = async (req, res, next) => {
-    const {id}=req.params;
-    const {answer}=req.body;
+    const { id } = req.params;
+    const { answer } = req.body;
     let accommodation = await isAccommodationAlreadyExist(id);
     if (!accommodation)
         return next(new Error('The specified accommodation is non-existent'));
-    if(accommodation.published=='Accepted' || accommodation.published == 'Rejected') 
-        return next (new Error('The query regarding this accommodation has been addressed'));
-    accommodation.published=answer;
+    if (accommodation.published == 'Accepted' || accommodation.published == 'Rejected')
+        return next(new Error('The query regarding this accommodation has been addressed'));
+    accommodation.published = answer;
     await accommodation.save();
-    return res.json({message:"success",accommodation});
+    return res.json({ message: "success", accommodation });
 }
 export const deleteAccommodation = async (req, res, next) => {
     const { id } = req.params;

@@ -17,6 +17,7 @@ export const createWishlist = async (req, res, next) => {
     })
     return res.json({ message: "success", createWishlistToUser });
 }
+
 export const updateWishlistName = async (req, res, next) => {
     const { id } = req.params;
     const { oldName, newName } = req.body;
@@ -113,5 +114,5 @@ export const getWishlist = async (req, res, next) => {
         return acc;
     }, {});
     const organizedArray = Object.values(organizedData);
-    return res.json({ message: "success", organizedWishlistLength: organizedArray.length ,organizedWishlistData: organizedArray});
+    return res.json({ message: "success", organizedWishlistLength: organizedArray.length, organizedWishlistData: organizedArray });
 }

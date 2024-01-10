@@ -42,8 +42,8 @@ export const editImage = async (req, res, next) => {
     return res.json({ message: "success", updateUserImage });
 }
 export const getUserAccommodations = async (req, res, next) => {
-    const id=req.user.id;
-    const userAccommodation=await accommodationModel.find({createdBy:id});
-    if(!userAccommodation) return next (new Error("You haven't created any accommodation yet"));
-    return res.json({message:"success",userAccommodation});
+    const id = req.user.id;
+    const userAccommodation = await accommodationModel.find({ createdBy: id });
+    if (!userAccommodation) return next(new Error("You haven't created any accommodation yet"));
+    return res.json({ message: "success", userAccommodation });
 }
