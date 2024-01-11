@@ -163,8 +163,10 @@ export async function checkAvailability(
   const numberOfDays = requestedEnd.diff(requestedStart, "days");
   for (let i = 0; i < accommodation.checkIn.length; i++) {
     // Convert booking dates to moment.js objects
-    const bookingStart = moment(accommodation.checkIn[i]);
-    const bookingEnd = moment(accommodation.checkOut[i]);
+    const dateCheckIn = splitString(accommodation.checkIn[i]).date;
+    const dateCheckOut = splitString(accommodation.checkOut[i]).date;
+    const bookingStart = moment(dateCheckIn);
+    const bookingEnd = moment(dateCheckOut);
 
     // If the requested check in date is between an existing booking, it's not available
     if (requestedStart.isBetween(bookingStart, bookingEnd, null, "[]")) {
@@ -187,6 +189,12 @@ export async function checkAvailability(
 
   // If none of the above conditions are met, the dates are available
   return { available: true, numberOfDays };
+}
+
+export function splitString(inputString) {
+  const date = inputString.slice(0, 10);
+  const dynamicString = inputString.slice(10 + "HaMa__".length);
+  return { date, dynamicString };
 }
 
 export async function checkNumberOfNights(accommodationId, numberOfNights) {
@@ -229,9 +237,6 @@ export async function addNewBooking(
     accommodationData.pricePerNight * numberOfDays
   );
   booking.bookings.push(accommodationId);
-  accommodationData.checkIn.push(checkIn);
-  accommodationData.checkOut.push(checkOut);
-  await accommodationData.save();
   await booking.save();
   return true;
 }
@@ -250,15 +255,14 @@ export async function hasUserAnyBookings(userId) {
 }
 
 export async function hasUserPermissionToDeleteBooking(bookingId, userId) {
-  const getBooking = await bookingModel.findById({_id:bookingId});
-  if (getBooking.userId.equals(userId)){
+  const getBooking = await bookingModel.findById({ _id: bookingId });
+  if (getBooking.userId.equals(userId)) {
     return true;
-
-    } 
-    
+  }
   return false;
 }
-export async function hasUserThisAccommodationToDeleteBooking(accommodationId,userId) {
+
+export async function hasUserThisAccommodationToDeleteBooking(accommodationId, userId) {
   const getUserAccommodation = await bookingModel.findOne({ userId });
   for (let i = 0; getUserAccommodation.bookings.length; i++) {
     if (getUserAccommodation.bookings[i] == accommodationId) return true;

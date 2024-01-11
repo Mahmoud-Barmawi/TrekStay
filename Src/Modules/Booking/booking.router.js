@@ -23,9 +23,14 @@ router.get(
 );
 
 router.delete(
-  "/DeleteBookingByUser/:id/:accommodationId",
+  "/DeleteBookingByUser/:id/:accommodationId/:checkInDate",
   auth(roles.USER),
   asyncHandler(bookingController.deleteBookingByUser)
 );
 
+router.delete(
+  "/DeleteAllBookingsByUser/:id",
+  auth(roles.USER),
+  asyncHandler(bookingController.deleteAllBookingsByUser)
+);
 export default router;

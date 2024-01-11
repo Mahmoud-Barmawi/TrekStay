@@ -93,12 +93,10 @@ const accommodationSchema=new Schema({
         type:String,
     }],
     checkIn:[{
-        type:Date,
-        default:null,
+        type:String,
     }],
     checkOut:[{
-        type:Date,
-        default:null,
+        type:String,
     }],
     category: { type: Types.ObjectId, ref: 'Category', required: true },
     createdBy: { type: Types.ObjectId, ref: 'User', required: true },
