@@ -9,6 +9,7 @@ import {
   hasUserAnyBookings,
   hasUserPermissionToDeleteBooking,
   hasUserThisAccommodationToDeleteBooking,
+  splitString,
   userHasBookings,
 } from "../../../Utils/helper_functions.js";
 
@@ -153,16 +154,31 @@ export const deleteBookingByUser = async (req, res, next) => {
 
 export const deleteAllBookingsByUser = async (req, res, next) => {
   const { id } = req.params;
-  const userHasPermission = await hasUserPermissionToDeleteBooking(
-    id,
-    req.user._id
-  );
+  const userHasPermission = await hasUserPermissionToDeleteBooking(id, req.user._id);
   if (!userHasPermission) {
     return next(new Error(`You don't have permission to delete this booking`));
   }
   await bookingModel.deleteOne({ _id: id });
+  let getAllAccommodations = await accommodationModel.find().select("checkIn checkOut");
+
+  for (let i = 0; i < getAllAccommodations.length; i++) {
+    // Update checkIn array
+    getAllAccommodations[i].checkIn = getAllAccommodations[i].checkIn.filter(dateStr => {
+      const idUser = splitString(dateStr).dynamicString;
+      return idUser != req.user._id;
+    });
+
+    // Update checkOut array
+    getAllAccommodations[i].checkOut = getAllAccommodations[i].checkOut.filter(dateStr => {
+      const idUser = splitString(dateStr).dynamicString;
+      return idUser != req.user._id;
+    });
+
+    // Save the document
+    await getAllAccommodations[i].save();
+  }
+
   return res.json({
-    success: true,
-    message: "Booking(s) successfully deleted.",
+    success: true, message: getAllAccommodations,
   });
 };
