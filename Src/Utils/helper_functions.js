@@ -7,6 +7,7 @@ import accommodationModel from "../../Database/Models/accommodation.model.js";
 import wishlistModle from "../../Database/Models/wishlist.model.js";
 import moment from "moment";
 import bookingModel from "./../../Database/Models/booking.model.js";
+import visaModel from "../../Database/Models/visa_card.model.js";
 
 export async function isEmailAlreadyRegistered(email) {
   const checkEmail = await userModel.findOne({ email });
@@ -219,24 +220,20 @@ export async function userHasBookings(userId) {
   const checkUser = await bookingModel.findOne({ userId });
   return Boolean(checkUser);
 }
-export async function addNewBooking(
-  userId,
-  checkIn,
-  checkOut,
-  numberOfGuests,
-  numberOfDays,
-  accommodationId
-) {
+export async function addNewBooking(userId, checkIn, checkOut, numberOfGuests, numberOfDays, accommodationId, visaDetails, next) {
   const accommodationData = await getAccommodationData(accommodationId);
   const booking = await bookingModel.findOne({ userId });
+  const { amountOfMoney } = visaDetails;
+  if (parseInt(amountOfMoney) < accommodationData.pricePerNight * numberOfDays)
+    return false;
   booking.checkIn.push(checkIn);
   booking.checkOut.push(checkOut);
   booking.numberOfGuests.push(numberOfGuests);
   booking.numberOfNights.push(numberOfDays);
-  booking.totlaPriceForAllNights.push(
-    accommodationData.pricePerNight * numberOfDays
-  );
+  booking.totlaPriceForAllNights.push(accommodationData.pricePerNight * numberOfDays);
   booking.bookings.push(accommodationId);
+  visaDetails.amountOfMoney = parseInt(amountOfMoney) - (accommodationData.pricePerNight * numberOfDays);
+  await visaDetails.save();
   await booking.save();
   return true;
 }
@@ -268,4 +265,13 @@ export async function hasUserThisAccommodationToDeleteBooking(accommodationId, u
     if (getUserAccommodation.bookings[i] == accommodationId) return true;
   }
   return false;
+}
+
+
+export async function isVisaAvailable(userId, cardNumber, cardPassword) {
+  const checkVisa = await visaModel.findOne({ userId });
+  if (checkVisa && checkVisa.cardNumber === cardNumber && checkVisa.cardPassword === cardPassword) {
+    return { isAvailable: true, visaDetails: checkVisa };
+  }
+  return { isAvailable: false, visaDetails: null };
 }

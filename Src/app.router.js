@@ -5,6 +5,9 @@ import categoryRouter from './Modules/Category/category.router.js';
 import accommodationRouter from './Modules/Accommodation/accommodation.router.js';
 import wishlistRouter from './Modules/Wishlist/wishlist.router.js';
 import bookingRouter from './Modules/Booking/booking.router.js';
+import visaRouter from './Modules/Visa/visa.router.js';
+
+
 import { globalErrorHandling } from './Utils/global_error_handling.js';
 
 const initapp = (app, express) => {
@@ -16,6 +19,7 @@ const initapp = (app, express) => {
     app.use('/accommodation', accommodationRouter);
     app.use('/wishlist', wishlistRouter);
     app.use('/booking', bookingRouter);
+    app.use('/visa', visaRouter);
     app.use('*', (req, res) => {
         return res.json({ message: "Page not found" });
     })

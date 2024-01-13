@@ -9,6 +9,7 @@ import {
   hasUserAnyBookings,
   hasUserPermissionToDeleteBooking,
   hasUserThisAccommodationToDeleteBooking,
+  isVisaAvailable,
   splitString,
   userHasBookings,
 } from "../../../Utils/helper_functions.js";
@@ -16,7 +17,7 @@ import {
 export const bookingAccommodation = async (req, res, next) => {
   const { id } = req.params;
   const userId = req.user._id;
-  const { checkIn, checkOut, numberOfGuests } = req.body;
+  const { checkIn, checkOut, numberOfGuests, cardNumber, cardPassword } = req.body;
   const concateHelper = "HaMa__";
   const concatenatedUserIdAndCheckIn = checkIn + concateHelper + userId;
   const concatenatedUserIdAndCheckOut = checkOut + concateHelper + userId;
@@ -36,18 +37,26 @@ export const bookingAccommodation = async (req, res, next) => {
   const { availableNumberOfGuests, maximumNumberOfGuests } = await checkNumberOfGuests(id, numberOfGuests);
   if (!availableNumberOfGuests) return next(new Error(`This accommodation can only accommodate a maximum of ${maximumNumberOfGuests} individuals`));
 
-  // check if user has a booking, and if not make one if yes add data to array
+  const { isAvailable, visaDetails } = await isVisaAvailable(userId, cardNumber, cardPassword);
+
+  if (!isAvailable) return next(new Error(`Please verify your visa information. There seems to be an issue with the entered details`));
+
+  const { amountOfMoney } = visaDetails;
+  if (parseInt(amountOfMoney) < parseInt(checkAccommdation.pricePerNight * resultAvailability.numberOfDays))
+    return next(new Error(`You do not have enough money to book this accommodation for this period of time`));
 
   const checkUserBookings = await userHasBookings(userId);
   if (checkUserBookings) {
-    const resultAddBooking = await addNewBooking(userId, checkIn, checkOut, numberOfGuests, resultAvailability.numberOfDays, id);
+    const resultAddBooking = await addNewBooking(userId, checkIn, checkOut, numberOfGuests, resultAvailability.numberOfDays, id, visaDetails);
     if (resultAddBooking) {
       checkAccommdation.checkIn.push(concatenatedUserIdAndCheckIn);
       checkAccommdation.checkOut.push(concatenatedUserIdAndCheckOut);
       await checkAccommdation.save();
       return res.json({ message: "success" });
     }
+
   }
+
   const createBookingToUser = await bookingModel.create({
     userId,
     checkIn: [checkIn],
@@ -62,6 +71,8 @@ export const bookingAccommodation = async (req, res, next) => {
   checkAccommdation.checkIn.push(concatenatedUserIdAndCheckIn);
   checkAccommdation.checkOut.push(concatenatedUserIdAndCheckOut);
   await checkAccommdation.save();
+  visaDetails.amountOfMoney = parseInt(amountOfMoney) - parseInt(checkAccommdation.pricePerNight * resultAvailability.numberOfDays);
+  await visaDetails.save();
   return res.json({ message: "success", createBookingToUser });
 };
 
