@@ -37,6 +37,7 @@ export const bookingAccommodation = async (req, res, next) => {
   const { availableNumberOfGuests, maximumNumberOfGuests } = await checkNumberOfGuests(id, numberOfGuests);
   if (!availableNumberOfGuests) return next(new Error(`This accommodation can only accommodate a maximum of ${maximumNumberOfGuests} individuals`));
 
+  
   const { isAvailable, visaDetails } = await isVisaAvailable(userId, cardNumber, cardPassword);
 
   if (!isAvailable) return next(new Error(`Please verify your visa information. There seems to be an issue with the entered details`));
